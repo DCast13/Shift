@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
-public class weaponeWheelButtonController : MonoBehaviour
+public class weaponWheelButtonController : MonoBehaviour
 {
     public int ID;
     public Animator anim;
@@ -29,13 +29,13 @@ public class weaponeWheelButtonController : MonoBehaviour
     public void Selected()
     {
         selected = true;
-        weaponWheelController.weaponID = ID;
+        weaponWheelController.ID = ID;
     }
 
     public void Deselected()
     {
         selected = false;
-        weaponWheelController.weaponID = 0;
+        weaponWheelController.ID = 0;
     }
 
     public void HoverEnter()

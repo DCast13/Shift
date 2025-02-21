@@ -8,8 +8,7 @@ public class weaponWheelController : MonoBehaviour
     public bool weaponWheelSelected = false;
     public Image selectedItem;
     public Sprite noImage;
-    public static int weaponID;
-    public static int abilityID;
+    public static int ID;
 
     // Update is called once per frame
     void Update()
@@ -28,7 +27,7 @@ public class weaponWheelController : MonoBehaviour
             anim.SetBool("OpenWeaponWheel", false);
         }
 
-        switch (weaponID)
+        switch (ID)
         {
             case 0: // No weapon selected
                 selectedItem.sprite = noImage;
@@ -38,6 +37,12 @@ public class weaponWheelController : MonoBehaviour
                 break;
             case 2: // Sword
                 Debug.Log("Sword");
+                break;
+            case 3: // Stasis
+                Debug.Log("Stasis");
+                break;
+            case 4: // Warp
+                Debug.Log("Warp");
                 break;
         }
     }
