@@ -6,6 +6,9 @@ public class RealitySwitcher : MonoBehaviour
     public GameObject reality2;
     public Material skybox1;
     public Material skybox2;
+    public Transform player; // Reference to the player object
+    public LayerMask reality1Layer; // Set in Inspector to Reality1 Layer
+    public LayerMask reality2Layer; // Set in Inspector to Reality2 Layer
     private bool isReality1Active = true;
 
     void Update()
@@ -13,8 +16,30 @@ public class RealitySwitcher : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Tab))
         {
             Debug.Log("Tab Pressed!");
+            AttemptSwitchReality();
+        }
+    }
+
+    void AttemptSwitchReality()
+    {
+        if (CanSwitch())
+        {
             SwitchReality();
         }
+        else
+        {
+            Debug.Log("Blocked! You're inside an object from the other reality.");
+        }
+    }
+
+    bool CanSwitch()
+    {
+        LayerMask checkLayer = isReality1Active ? reality2Layer : reality1Layer;
+
+        // Check if player is colliding with objects from the opposite reality
+        Collider[] colliders = Physics.OverlapSphere(player.position, 0.5f, checkLayer);
+
+        return colliders.Length == 0; // Can switch if no colliders detected
     }
 
     void SwitchReality()
