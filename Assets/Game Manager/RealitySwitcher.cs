@@ -4,8 +4,8 @@ public class RealitySwitcher : MonoBehaviour
 {
     public GameObject reality1;
     public GameObject reality2;
-    public Material skybox1;
-    public Material skybox2;
+    public Material Fantasy_Skybox;
+    public Material SciFi_Skybox;
     public Transform player; // Reference to the player object
     public LayerMask reality1Layer; // Set in Inspector to Reality1 Layer
     public LayerMask reality2Layer; // Set in Inspector to Reality2 Layer
@@ -50,7 +50,7 @@ public class RealitySwitcher : MonoBehaviour
         reality2.SetActive(!isReality1Active); // Corrected
 
         // Swap skybox
-        RenderSettings.skybox = isReality1Active ? skybox1 : skybox2;
+        RenderSettings.skybox = isReality1Active ? Fantasy_Skybox : SciFi_Skybox;
         DynamicGI.UpdateEnvironment(); // Refresh lighting
 
         Debug.Log("Reality switched to: " + (isReality1Active ? "Reality 1" : "Reality 2"));
