@@ -14,7 +14,7 @@ public class GameManager : MonoBehaviour
 
     private void Awake()
     {
-        // Singleton setup
+        // Singleton Setup
         if (Instance != null && Instance != this)
         {
             Destroy(gameObject);
@@ -24,6 +24,7 @@ public class GameManager : MonoBehaviour
         Instance = this;
         DontDestroyOnLoad(gameObject);
 
+        EnsureEventSystem();
         SetupWeaponWheel();
         SetupRealitySwitcher();
     }
@@ -49,7 +50,17 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    // Exposed functions you can call from other scripts:
+    private void EnsureEventSystem()
+    {
+        if (FindObjectOfType<UnityEngine.EventSystems.EventSystem>() == null)
+        {
+            GameObject eventSystem = new GameObject("EventSystem", typeof(UnityEngine.EventSystems.EventSystem), typeof(UnityEngine.EventSystems.StandaloneInputModule));
+            DontDestroyOnLoad(eventSystem);
+            Debug.Log("GameManager: Created missing EventSystem.");
+        }
+    }
+
+    // Optional helper function if you want to call these easily elsewhere
     public void SwitchReality()
     {
         if (realitySwitcher != null)

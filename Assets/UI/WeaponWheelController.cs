@@ -56,7 +56,12 @@ public class WeaponWheelController : MonoBehaviour
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
 
-        // Optionally: Tell your player script to disable camera look here if needed
+        Time.timeScale = 0.2f; // Slow down game time
+
+        if (GameObject.FindObjectOfType<FirstPersonController>() != null)
+        {
+            GameObject.FindObjectOfType<FirstPersonController>().FreezePlayer(true);
+        }
     }
 
     private void CloseWeaponWheel()
@@ -67,8 +72,14 @@ public class WeaponWheelController : MonoBehaviour
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
 
-        // Optionally: Tell your player script to enable camera look here again
+        Time.timeScale = 1f; // Restore normal game time
+
+        if (GameObject.FindObjectOfType<FirstPersonController>() != null)
+        {
+            GameObject.FindObjectOfType<FirstPersonController>().FreezePlayer(false);
+        }
     }
+
 
     private void UpdateSelectionUI()
     {
