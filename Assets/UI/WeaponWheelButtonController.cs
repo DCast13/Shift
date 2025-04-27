@@ -10,7 +10,8 @@ public class WeaponWheelButtonController : MonoBehaviour
     private Animator anim;
     public string itemName;
     public TextMeshProUGUI itemText;
-    private bool selected = false;
+
+    public bool selected = false; // make this public
 
     void Start()
     {
@@ -25,36 +26,9 @@ public class WeaponWheelButtonController : MonoBehaviour
         }
     }
 
-    public void Selected()
+    public void Clicked()
     {
-        // Deselect only buttons of the same type
-        WeaponWheelButtonController[] allButtons = FindObjectsOfType<WeaponWheelButtonController>();
-
-        foreach (var button in allButtons)
-        {
-            if (button.isWeapon == this.isWeapon)
-            {
-                button.Deselected();
-            }
-        }
-
-        // Now select this button
-        selected = true;
-
-        if (isWeapon)
-        {
-            WeaponWheelController.selectedWeaponType = weaponType;
-        }
-        else
-        {
-            WeaponWheelController.selectedAbilityType = abilityType;
-        }
-    }
-
-    public void Deselected()
-    {
-        selected = false;
-        // No longer reset the global selected weapon/ability here!
+        WeaponWheelController.Instance.ButtonClicked(this);
     }
 
     public void HoverEnter()
@@ -67,5 +41,15 @@ public class WeaponWheelButtonController : MonoBehaviour
     {
         anim.SetBool("Hover", false);
         itemText.text = "";
+    }
+
+    public void Select()
+    {
+        selected = true;
+    }
+
+    public void Deselect()
+    {
+        selected = false;
     }
 }
