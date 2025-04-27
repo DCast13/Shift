@@ -4,114 +4,112 @@ using System.Collections;
 public class WarpAbility : MonoBehaviour
 {
     [Header("Warp Settings")]
-    public float maxWarpDistance = 50f;  // Maximum warp range
-    public LayerMask teleportableSurfaces; // Define surfaces you can warp to
-    public GameObject warpMarkerPrefab; // Visual marker for warp location
-    public GameObject warpEffectPrefab; // Distortion effect when warping
-
-    [Header("Slow Motion Settings")]
-    public float slowMoTimeScale = 0.3f; // Time scale while aiming (lower = slower)
-    public float returnToNormalSpeed = 5f; // Speed of time returning to normal
+    public float maxWarpDistance = 50f;
+    public float slowMotionTimeScale = 0.3f;
+    public float returnToNormalSpeed = 5f;
+    public GameObject warpMarkerPrefab;
 
     private Camera playerCamera;
-    private GameObject warpMarker;
+    private GameObject warpMarkerInstance;
     private Vector3 targetPosition;
     private bool isAimingWarp = false;
 
-    void Start()
+    private void Start()
     {
         playerCamera = Camera.main;
 
-        // Instantiate the warp marker but disable it initially
-        if (warpMarkerPrefab)
+        if (warpMarkerPrefab != null)
         {
-            warpMarker = Instantiate(warpMarkerPrefab);
-            warpMarker.SetActive(false);
+            warpMarkerInstance = Instantiate(warpMarkerPrefab);
+            warpMarkerInstance.SetActive(false);
+        }
+        else
+        {
+            Debug.LogWarning("WarpAbility: Warp Marker Prefab not assigned.");
         }
     }
 
-    void Update()
+    private void Update()
     {
-        if (Input.GetMouseButtonDown(1)) // Start aiming
+        if (isAimingWarp)
+        {
+            UpdateWarpTarget();
+
+            if (Input.GetMouseButtonUp(1))
+            {
+                PerformWarp();
+            }
+        }
+    }
+
+    /// <summary>
+    /// Called externally (from PlayerCombat) to start aiming for warp.
+    /// </summary>
+    public void StartWarpAim()
+    {
+        if (!isAimingWarp)
         {
             isAimingWarp = true;
-            Time.timeScale = slowMoTimeScale; // Enable slow motion
-            Time.fixedDeltaTime = 0.02f * Time.timeScale; // Adjust physics step for slow motion
-        }
 
-        if (Input.GetMouseButton(1)) // While holding RMB, update the warp marker
-        {
-            UpdateWarpMarker();
-        }
+            // Slow down time
+            Time.timeScale = slowMotionTimeScale;
+            Time.fixedDeltaTime = 0.02f * Time.timeScale;
 
-        if (Input.GetMouseButtonUp(1) && isAimingWarp) // Release to warp
-        {
-            PerformWarp();
-            isAimingWarp = false;
+            if (warpMarkerInstance != null)
+                warpMarkerInstance.SetActive(true);
         }
     }
 
-    void UpdateWarpMarker()
+    private void UpdateWarpTarget()
     {
         Ray ray = new Ray(playerCamera.transform.position, playerCamera.transform.forward);
         RaycastHit hit;
 
-        if (Physics.Raycast(ray, out hit, maxWarpDistance, teleportableSurfaces))
+        if (Physics.Raycast(ray, out hit, maxWarpDistance))
         {
-            // If a surface is hit, warp to it
-            targetPosition = hit.point + Vector3.up * 0.1f; // Slight offset to avoid clipping
+            targetPosition = hit.point;
         }
         else
         {
-            // If no surface is found, warp to max range in air
-            targetPosition = playerCamera.transform.position + playerCamera.transform.forward * maxWarpDistance;
+            // Always project forward max distance
+            targetPosition = playerCamera.transform.position + (playerCamera.transform.forward.normalized * maxWarpDistance);
         }
 
-        // Update the marker position and show it
-        warpMarker.SetActive(true);
-        warpMarker.transform.position = targetPosition;
+        if (warpMarkerInstance != null)
+        {
+            warpMarkerInstance.transform.position = targetPosition;
+        }
     }
 
-    void PerformWarp()
-    {
-        if (!warpMarker.activeSelf) return;
 
-        // Spawn the warp effect at the current position
-        if (warpEffectPrefab)
-        {
-            Instantiate(warpEffectPrefab, transform.position, Quaternion.identity);
-        }
+    private void PerformWarp()
+    {
+        if (warpMarkerInstance != null)
+            warpMarkerInstance.SetActive(false);
+
+        isAimingWarp = false;
 
         // Warp the player
         transform.position = targetPosition;
 
-        // Spawn the warp effect at the new position
-        if (warpEffectPrefab)
-        {
-            Instantiate(warpEffectPrefab, transform.position, Quaternion.identity);
-        }
-
-        // Hide the marker after warping
-        warpMarker.SetActive(false);
-
-        // Gradually return to normal time
-        StartCoroutine(ReturnToNormalTime());
+        // Smoothly return time to normal
+        StartCoroutine(SmoothReturnToNormalTime());
     }
 
-    IEnumerator ReturnToNormalTime()
+    private IEnumerator SmoothReturnToNormalTime()
     {
         float t = 0f;
-        float startTimeScale = Time.timeScale;
+        float startScale = Time.timeScale;
 
         while (t < 1f)
         {
             t += Time.unscaledDeltaTime * returnToNormalSpeed;
-            Time.timeScale = Mathf.Lerp(startTimeScale, 1f, t);
+            Time.timeScale = Mathf.Lerp(startScale, 1f, t);
             Time.fixedDeltaTime = 0.02f * Time.timeScale;
             yield return null;
         }
 
         Time.timeScale = 1f;
-        Time.fixedDeltaTime = 0.02f; // Reset to default physics step
+        Time.fixedDeltaTime = 0.02f;
     }
 }
