@@ -5,101 +5,106 @@ public class WarpAbility : MonoBehaviour
 {
     [Header("Warp Settings")]
     public float maxWarpDistance = 50f;
-    public LayerMask teleportableSurfaces;
-    public GameObject warpMarkerPrefab;
-    public GameObject warpEffectPrefab;
-
-    [Header("Slow Motion Settings")]
-    public float slowMoTimeScale = 0.3f;
+    public float slowMotionTimeScale = 0.3f;
     public float returnToNormalSpeed = 5f;
+    public GameObject warpMarkerPrefab;
 
     private Camera playerCamera;
-    private GameObject warpMarker;
+    private GameObject warpMarkerInstance;
     private Vector3 targetPosition;
     private bool isAimingWarp = false;
 
-    void Start()
+    private void Start()
     {
         playerCamera = Camera.main;
 
-        if (warpMarkerPrefab)
+        if (warpMarkerPrefab != null)
         {
-            warpMarker = Instantiate(warpMarkerPrefab);
-            warpMarker.SetActive(false);
+            warpMarkerInstance = Instantiate(warpMarkerPrefab);
+            warpMarkerInstance.SetActive(false);
+        }
+        else
+        {
+            Debug.LogWarning("WarpAbility: Warp Marker Prefab not assigned.");
         }
     }
 
-    void Update()
+    private void Update()
     {
         if (isAimingWarp)
         {
-            UpdateWarpMarker();
+            UpdateWarpTarget();
 
-            if (Input.GetMouseButtonUp(1)) // Release right-click
+            if (Input.GetMouseButtonUp(1))
             {
                 PerformWarp();
-                isAimingWarp = false;
             }
         }
     }
 
+    /// <summary>
+    /// Called externally (from PlayerCombat) to start aiming for warp.
+    /// </summary>
     public void StartWarpAim()
     {
         if (!isAimingWarp)
         {
             isAimingWarp = true;
-            Time.timeScale = slowMoTimeScale;
+
+            // Slow down time
+            Time.timeScale = slowMotionTimeScale;
             Time.fixedDeltaTime = 0.02f * Time.timeScale;
+
+            if (warpMarkerInstance != null)
+                warpMarkerInstance.SetActive(true);
         }
     }
 
-    void UpdateWarpMarker()
+    private void UpdateWarpTarget()
     {
         Ray ray = new Ray(playerCamera.transform.position, playerCamera.transform.forward);
         RaycastHit hit;
 
-        if (Physics.Raycast(ray, out hit, maxWarpDistance, teleportableSurfaces))
+        if (Physics.Raycast(ray, out hit, maxWarpDistance))
         {
-            targetPosition = hit.point + Vector3.up * 0.1f;
+            targetPosition = hit.point;
         }
         else
         {
-            targetPosition = playerCamera.transform.position + playerCamera.transform.forward * maxWarpDistance;
+            // Always project forward max distance
+            targetPosition = playerCamera.transform.position + (playerCamera.transform.forward.normalized * maxWarpDistance);
         }
 
-        warpMarker.SetActive(true);
-        warpMarker.transform.position = targetPosition;
+        if (warpMarkerInstance != null)
+        {
+            warpMarkerInstance.transform.position = targetPosition;
+        }
     }
 
-    void PerformWarp()
+
+    private void PerformWarp()
     {
-        if (!warpMarker.activeSelf) return;
+        if (warpMarkerInstance != null)
+            warpMarkerInstance.SetActive(false);
 
-        if (warpEffectPrefab)
-        {
-            Instantiate(warpEffectPrefab, transform.position, Quaternion.identity);
-        }
+        isAimingWarp = false;
 
+        // Warp the player
         transform.position = targetPosition;
 
-        if (warpEffectPrefab)
-        {
-            Instantiate(warpEffectPrefab, transform.position, Quaternion.identity);
-        }
-
-        warpMarker.SetActive(false);
-        StartCoroutine(ReturnToNormalTime());
+        // Smoothly return time to normal
+        StartCoroutine(SmoothReturnToNormalTime());
     }
 
-    IEnumerator ReturnToNormalTime()
+    private IEnumerator SmoothReturnToNormalTime()
     {
         float t = 0f;
-        float startTimeScale = Time.timeScale;
+        float startScale = Time.timeScale;
 
         while (t < 1f)
         {
             t += Time.unscaledDeltaTime * returnToNormalSpeed;
-            Time.timeScale = Mathf.Lerp(startTimeScale, 1f, t);
+            Time.timeScale = Mathf.Lerp(startScale, 1f, t);
             Time.fixedDeltaTime = 0.02f * Time.timeScale;
             yield return null;
         }
