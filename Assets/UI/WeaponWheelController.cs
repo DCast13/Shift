@@ -5,51 +5,60 @@ public class WeaponWheelController : MonoBehaviour
 {
     public Animator anim;
     private bool weaponWheelSelected = false;
-    public Image selectedItem;
-    public Sprite noImage;
-    public static int weaponID;
 
-    // Update is called once per frame
+    public Image selectedWeapon;
+    public Image selectedAbility;
+    public Sprite noImage;
+
+    public static WeaponType selectedWeaponType = WeaponType.None;
+    public static AbilityType selectedAbilityType = AbilityType.None;
+
+    private WeaponType lastWeaponType = WeaponType.None;
+    private AbilityType lastAbilityType = AbilityType.None;
+
     void Update()
     {
-        if (Input.GetKey(KeyCode.LeftAlt))
+        if (Input.GetKeyDown(KeyCode.LeftAlt))
         {
             weaponWheelSelected = !weaponWheelSelected;
         }
 
-        if (weaponWheelSelected)
+        anim.SetBool("OpenWeaponWheel", weaponWheelSelected);
+
+        if (selectedWeaponType != lastWeaponType)
         {
-            anim.SetBool("OpenWeaponWheel", true);
-            selectedItem.sprite = noImage;
-        }
-        else
-        {
-            anim.SetBool("OpenWeaponWheel", false);
-            selectedItem.sprite = noImage;
+            lastWeaponType = selectedWeaponType;
+
+            switch (selectedWeaponType)
+            {
+                case WeaponType.Pistol:
+                    selectedWeapon.sprite = Resources.Load<Sprite>("Sprites/PistolIcon") ?? noImage;
+                    break;
+                case WeaponType.Sword:
+                    selectedWeapon.sprite = Resources.Load<Sprite>("Sprites/SwordIcon") ?? noImage;
+                    break;
+                default:
+                    selectedWeapon.sprite = noImage;
+                    break;
+            }
         }
 
-        switch (weaponID)
+        if (selectedAbilityType != lastAbilityType)
         {
-            case 0: // No weapon selected
-                selectedItem.sprite = noImage;
-                break;
-            case 1: // Pistol
-                Debug.Log("Pistol selected");
-                selectedItem.sprite = Resources.Load<Sprite>("PistolIcon");
-                break;
-            case 2: // Sword
-                Debug.Log("Sword selected");
-                selectedItem.sprite = Resources.Load<Sprite>("SwordIcon");
-                break;
-            case 3: // Warp
-                Debug.Log("Warp selected");
-                selectedItem.sprite = Resources.Load<Sprite>("WarpIcon");
-                break;
-            case 4: // Stasis
-                Debug.Log("Stasis selected");
-                selectedItem.sprite = Resources.Load<Sprite>("StasisIcon");
-                break;
+            lastAbilityType = selectedAbilityType;
 
+            switch (selectedAbilityType)
+            {
+                case AbilityType.Warp:
+                    selectedAbility.sprite = Resources.Load<Sprite>("Sprites/WarpIcon") ?? noImage;
+                    break;
+                case AbilityType.Stasis:
+                    selectedAbility.sprite = Resources.Load<Sprite>("Sprites/StasisIcon") ?? noImage;
+                    break;
+                default:
+                    selectedAbility.sprite = noImage;
+                    break;
+            }
         }
     }
 }

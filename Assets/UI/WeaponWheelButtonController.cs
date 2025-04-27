@@ -1,43 +1,60 @@
 using UnityEngine;
-using UnityEngine.UI;
 using TMPro;
 
 public class WeaponWheelButtonController : MonoBehaviour
 {
-    public int ID;
+    public WeaponType weaponType = WeaponType.None;
+    public AbilityType abilityType = AbilityType.None;
+    public bool isWeapon;
+
     private Animator anim;
     public string itemName;
     public TextMeshProUGUI itemText;
-    public Image selectedItem;
     private bool selected = false;
-    public Sprite icon;
 
-    // Start is called before the first frame update
     void Start()
     {
         anim = GetComponent<Animator>();
     }
 
-    // Update is called once per frame
     void Update()
     {
         if (selected)
         {
-            selectedItem.sprite = icon;
             itemText.text = itemName;
         }
     }
 
     public void Selected()
     {
+        // Deselect only buttons of the same type
+        WeaponWheelButtonController[] allButtons = FindObjectsOfType<WeaponWheelButtonController>();
+
+        foreach (var button in allButtons)
+        {
+            if (button.isWeapon == this.isWeapon)
+            {
+                button.Deselected();
+            }
+        }
+
+        // Now select this button
         selected = true;
-        WeaponWheelController.weaponID = ID;
+
+        if (isWeapon)
+        {
+            WeaponWheelController.selectedWeaponType = weaponType;
+        }
+        else
+        {
+            WeaponWheelController.selectedAbilityType = abilityType;
+        }
     }
 
     public void Deselected()
     {
         selected = false;
-        WeaponWheelController.weaponID = 0;
+        // No longer reset the global selected weapon/ability here!
     }
 
     public void HoverEnter()
