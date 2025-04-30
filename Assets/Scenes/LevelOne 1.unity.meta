@@ -1,5 +1,9 @@
 fileFormatVersion: 2
-guid: 2f24981eedf786c4aaedc140e069884b
+<<<<<<<< HEAD:Assets/Polytope Studio/Lowpoly_Environments/URP/PT_Nature_Free_URP_12.unitypackage.meta
+guid: 194ffb9f0c5b86f4aaa6ac1ef3ade1ed
+========
+guid: 2a25d1a15c6b20744bf07e3088ca81ce
+>>>>>>>> c2159726ab97baac9c40a79549a64422e432736f:Assets/Scenes/LevelOne.unity.meta
 DefaultImporter:
   externalObjects: {}
   userData: 

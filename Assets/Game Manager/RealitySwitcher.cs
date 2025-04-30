@@ -43,7 +43,7 @@ public class RealitySwitcher : MonoBehaviour
         return colliders.Length == 0; // Can switch if no colliders detected
     }
 
-    void SwitchReality()
+    public void SwitchReality()
     {
         isReality1Active = !isReality1Active; // Toggle state
 
