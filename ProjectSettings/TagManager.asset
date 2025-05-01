@@ -11,8 +11,8 @@ TagManager:
   - 
   - Water
   - UI
-  - 
-  - 
+  - PlayerLayer
+  - GroundLayer
   - Reality1
   - Reality2
   - Warpable
