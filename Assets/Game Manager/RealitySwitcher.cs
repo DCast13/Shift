@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine;
 
 public class RealitySwitcher : MonoBehaviour
 {
@@ -42,7 +43,7 @@ public class RealitySwitcher : MonoBehaviour
         return colliders.Length == 0; // Can switch if no colliders detected
     }
 
-    void SwitchReality()
+    public void SwitchReality()
     {
         isReality1Active = !isReality1Active; // Toggle state
 
@@ -50,7 +51,7 @@ public class RealitySwitcher : MonoBehaviour
         reality2.SetActive(!isReality1Active); // Corrected
 
         // Swap skybox
-        RenderSettings.skybox = isReality1Active ? Fantasy_Skybox : SciFi_Skybox;
+        RenderSettings.skybox = isReality1Active ? SciFi_Skybox : Fantasy_Skybox;
         DynamicGI.UpdateEnvironment(); // Refresh lighting
 
         Debug.Log("Reality switched to: " + (isReality1Active ? "Reality 1" : "Reality 2"));
