@@ -1,7 +1,6 @@
 using UnityEngine;
 
-// Make sure your enums exist somewhere (WeaponType, AbilityType)
-
+// Make sure your enums (WeaponType, AbilityType) are defined elsewhere
 public class PlayerCombat : MonoBehaviour
 {
     [Header("Weapon Prefabs")]
@@ -19,11 +18,22 @@ public class PlayerCombat : MonoBehaviour
     private WeaponType currentWeaponType = WeaponType.None;
     private AbilityType currentAbilityType = AbilityType.None;
 
+    // ---- NEW animation fields ----
+    private Animator rootAnimator;
+    private bool isAttacking = false;
+    // --------------------------------
+
     void Start()
     {
+        // ---- NEW grab the Animator on this GameObject ----
+        rootAnimator = GetComponent<Animator>();
+        // -------------------------------------------------
+
+        // QuickWheel defaults
         WeaponWheelController.selectedWeaponType = WeaponType.Pistol;
         WeaponWheelController.selectedAbilityType = AbilityType.Warp;
 
+        // Spawn default pistol
         if (pistolPrefab != null)
         {
             currentWeapon = weaponParent
@@ -39,6 +49,7 @@ public class PlayerCombat : MonoBehaviour
             currentWeaponType = WeaponType.Pistol;
         }
 
+        // Enable warp, disable stasis by default
         if (warpAbility != null) warpAbility.enabled = true;
         if (stasisAbility != null) stasisAbility.enabled = false;
 
@@ -47,42 +58,48 @@ public class PlayerCombat : MonoBehaviour
 
     void Update()
     {
+        // ---- NEW feed the Animator which weapon is active ----
+        if (rootAnimator != null)
+            rootAnimator.SetInteger("WeaponType", (int)currentWeaponType);
+        // -----------------------------------------------------
+
+        // 1) Weapon Wheel equip (UNCHANGED)
         WeaponType selectedWep = WeaponWheelController.selectedWeaponType;
         if (selectedWep != currentWeaponType && selectedWep != WeaponType.None)
-        {
             EquipWeapon(selectedWep);
-        }
 
-        AbilityType selectedAbility = WeaponWheelController.selectedAbilityType;
-        if (selectedAbility != currentAbilityType && selectedAbility != AbilityType.None)
-        {
-            ActivateAbility(selectedAbility);
-        }
+        // 2) Ability switch (UNCHANGED)
+        AbilityType selectedAb = WeaponWheelController.selectedAbilityType;
+        if (selectedAb != currentAbilityType && selectedAb != AbilityType.None)
+            ActivateAbility(selectedAb);
 
-        HandleAbilityInput();
+        // 3) Ability input (RIGHT-CLICK), only if not attacking
+        if (!isAttacking)
+            HandleAbilityInput();
+
+        // ---- NEW Attack input (LEFT-CLICK), only if not already in an attack ----
+        if (!isAttacking && Input.GetMouseButtonDown(0))
+            TriggerAttack();
+        // -------------------------------------------------------------------------
     }
 
     private void EquipWeapon(WeaponType newWeaponType)
     {
+        // UNCHANGED
         if (currentWeapon != null) Destroy(currentWeapon);
 
-        GameObject newWeaponPrefab = null;
-
+        GameObject newPrefab = null;
         switch (newWeaponType)
         {
-            case WeaponType.Pistol:
-                newWeaponPrefab = pistolPrefab;
-                break;
-            case WeaponType.Sword:
-                newWeaponPrefab = swordPrefab;
-                break;
+            case WeaponType.Pistol: newPrefab = pistolPrefab; break;
+            case WeaponType.Sword: newPrefab = swordPrefab; break;
         }
 
-        if (newWeaponPrefab != null)
+        if (newPrefab != null)
         {
             currentWeapon = weaponParent
-                ? Instantiate(newWeaponPrefab, weaponParent.position, weaponParent.rotation, weaponParent)
-                : Instantiate(newWeaponPrefab, transform.position, transform.rotation);
+                ? Instantiate(newPrefab, weaponParent.position, weaponParent.rotation, weaponParent)
+                : Instantiate(newPrefab, transform.position, transform.rotation);
 
             if (weaponParent != null)
             {
@@ -96,6 +113,7 @@ public class PlayerCombat : MonoBehaviour
 
     private void ActivateAbility(AbilityType newAbilityType)
     {
+        // UNCHANGED
         if (warpAbility != null) warpAbility.enabled = false;
         if (stasisAbility != null) stasisAbility.enabled = false;
 
@@ -114,16 +132,34 @@ public class PlayerCombat : MonoBehaviour
 
     private void HandleAbilityInput()
     {
-        if (Input.GetMouseButtonDown(1)) // Right-click
+        if (Input.GetMouseButtonDown(1)) // right-click
         {
-            if (currentAbilityType == AbilityType.Warp && warpAbility != null && warpAbility.enabled)
+            if (currentAbilityType == AbilityType.Warp &&
+                warpAbility != null && warpAbility.enabled)
             {
                 warpAbility.StartWarpAim();
             }
-            else if (currentAbilityType == AbilityType.Stasis && stasisAbility != null && stasisAbility.enabled)
+            else if (currentAbilityType == AbilityType.Stasis &&
+                     stasisAbility != null && stasisAbility.enabled)
             {
                 stasisAbility.ActivateStasis();
             }
         }
     }
+
+    // ---- NEW trigger the Animator's Attack transition ----
+    private void TriggerAttack()
+    {
+        if (rootAnimator == null) return;
+        isAttacking = true;
+        rootAnimator.SetTrigger("Attack");
+    }
+    // -------------------------------------------------------
+
+    // ---- NEW called by Animation Event at the end of swordSwing & pistolFire ----
+    public void OnAttackComplete()
+    {
+        isAttacking = false;
+    }
+    // -----------------------------------------------------------------------------
 }
