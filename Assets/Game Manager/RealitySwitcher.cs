@@ -1,20 +1,34 @@
+// RealitySwitcher.cs
 using UnityEngine;
+using System.Collections;
 
 public class RealitySwitcher : MonoBehaviour
 {
+    [Header("Reality References")]
     public GameObject reality1;
     public GameObject reality2;
     public Material Fantasy_Skybox;
     public Material SciFi_Skybox;
-    public Transform player; // Reference to the player object
-    public LayerMask reality1Layer; // Set in Inspector to Reality1 Layer
-    public LayerMask reality2Layer; // Set in Inspector to Reality2 Layer
+    public Transform player;             // Reference to the player object
+    public LayerMask reality1Layer;      // Set in Inspector to Reality1 Layer
+    public LayerMask reality2Layer;      // Set in Inspector to Reality2 Layer
+
+    [Header("Cooldown Settings")]
+    public float cooldownDuration = 5f;
+    private bool isCooldown = false;
+
     private bool isReality1Active = true;
 
     void Update()
     {
         if (Input.GetKeyDown(KeyCode.Tab))
         {
+            if (isCooldown)
+            {
+                Debug.Log("Reality switch on cooldown.");
+                return;
+            }
+
             Debug.Log("Tab Pressed!");
             AttemptSwitchReality();
         }
@@ -38,7 +52,6 @@ public class RealitySwitcher : MonoBehaviour
 
         // Check if player is colliding with objects from the opposite reality
         Collider[] colliders = Physics.OverlapSphere(player.position, 0.5f, checkLayer);
-
         return colliders.Length == 0; // Can switch if no colliders detected
     }
 
@@ -47,12 +60,23 @@ public class RealitySwitcher : MonoBehaviour
         isReality1Active = !isReality1Active; // Toggle state
 
         reality1.SetActive(isReality1Active);
-        reality2.SetActive(!isReality1Active); // Corrected
+        reality2.SetActive(!isReality1Active);
 
         // Swap skybox
         RenderSettings.skybox = isReality1Active ? SciFi_Skybox : Fantasy_Skybox;
         DynamicGI.UpdateEnvironment(); // Refresh lighting
 
         Debug.Log("Reality switched to: " + (isReality1Active ? "Reality 1" : "Reality 2"));
+
+        // Begin cooldown
+        isCooldown = true;
+        StartCoroutine(RealitySwitchCooldown());
+    }
+
+    private IEnumerator RealitySwitchCooldown()
+    {
+        yield return new WaitForSeconds(cooldownDuration);
+        isCooldown = false;
+        Debug.Log("Reality switch ready.");
     }
 }
