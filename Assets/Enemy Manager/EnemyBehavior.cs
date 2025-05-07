@@ -81,7 +81,7 @@ public class EnemyBehavior : MonoBehaviour
     {
         enemy.SetDestination(transform.position);
 
-        transform.LookAt(player);
+        // transform.LookAt(player);
 
         if (!attacked)
         {
@@ -92,14 +92,18 @@ public class EnemyBehavior : MonoBehaviour
 
     private void SearchWalkPoint()
     {
-        float randomZ = Random.Range(-walkPointRange, walkPointRange);
         float randomX = Random.Range(-walkPointRange, walkPointRange);
+        float randomZ = Random.Range(-walkPointRange, walkPointRange);
 
-        walkPoint = new Vector3(transform.position.x + randomX, transform.position.y, transform.position.z + randomZ);
+        Vector3 potentialPoint = new Vector3(transform.position.x + randomX, transform.position.y + 25f, transform.position.z + randomZ);
 
-        if (Physics.Raycast(walkPoint, -transform.up, 2f, groundLayer))
+        RaycastHit hit;
+
+        if (Physics.Raycast(potentialPoint, Vector3.down, out hit, 10f, groundLayer))
         {
+            walkPoint = hit.point;
             walkPointSet = true;
+            Debug.Log("Walk point found: " + walkPoint);
         }
     }
 
