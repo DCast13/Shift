@@ -3,6 +3,8 @@ using UnityEngine;
 // Make sure your enums (WeaponType, AbilityType) are defined elsewhere
 public class PlayerCombat : MonoBehaviour
 {
+    public float playerHealth = 100;
+
     [Header("Weapon Prefabs")]
     [SerializeField] private GameObject pistolPrefab;
     [SerializeField] private GameObject swordPrefab;
@@ -162,4 +164,15 @@ public class PlayerCombat : MonoBehaviour
         isAttacking = false;
     }
     // -----------------------------------------------------------------------------
+
+    public void TakeDamage(int damage)
+    {
+        playerHealth -= damage;
+
+        if (playerHealth <= 0)
+        {
+            //implement code to transition to game over screen
+            Debug.Log("Player has died");
+        }
+    }
 }
