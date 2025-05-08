@@ -1,3 +1,4 @@
+// WarpAbility.cs
 using UnityEngine;
 using System.Collections;
 
@@ -8,6 +9,10 @@ public class WarpAbility : MonoBehaviour
     public float slowMotionTimeScale = 0.3f;
     public float returnToNormalSpeed = 5f;
     public GameObject warpMarkerPrefab;
+
+    [Header("Cooldown Settings")]
+    public float cooldownDuration = 5f;
+    private bool isCooldown = false;
 
     private Camera playerCamera;
     private GameObject warpMarkerInstance;
@@ -47,6 +52,11 @@ public class WarpAbility : MonoBehaviour
     /// </summary>
     public void StartWarpAim()
     {
+        if (isCooldown)
+        {
+            Debug.Log("Warp on cooldown.");
+            return;
+        }
         if (!isAimingWarp)
         {
             isAimingWarp = true;
@@ -81,7 +91,6 @@ public class WarpAbility : MonoBehaviour
         }
     }
 
-
     private void PerformWarp()
     {
         if (warpMarkerInstance != null)
@@ -94,6 +103,10 @@ public class WarpAbility : MonoBehaviour
 
         // Smoothly return time to normal
         StartCoroutine(SmoothReturnToNormalTime());
+
+        // Begin cooldown
+        isCooldown = true;
+        StartCoroutine(WarpCooldownRoutine());
     }
 
     private IEnumerator SmoothReturnToNormalTime()
@@ -111,5 +124,12 @@ public class WarpAbility : MonoBehaviour
 
         Time.timeScale = 1f;
         Time.fixedDeltaTime = 0.02f;
+    }
+
+    private IEnumerator WarpCooldownRoutine()
+    {
+        yield return new WaitForSecondsRealtime(cooldownDuration);
+        isCooldown = false;
+        Debug.Log("Warp ready.");
     }
 }
