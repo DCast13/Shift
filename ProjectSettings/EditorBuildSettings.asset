@@ -11,4 +11,10 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/GameWon.unity
     guid: 915c02df39139a04ba4ebc85d8d87cd6
+  - enabled: 0
+    path: Assets/Scenes/EnemyTestArea1.unity
+    guid: 403c4d7740d5ed4408ab7c6056f9924e
+  - enabled: 1
+    path: Assets/GameOver.unity
+    guid: 08236fcbb41f1954bb7674a665e9b864
   m_configObjects: {}

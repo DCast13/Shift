@@ -52,7 +52,7 @@ public class PlayerCollector : MonoBehaviour {
             UpdateScoreUI();
             Debug.Log("Score: " + score);
 
-            if (score >= 8)
+            if (score >= 10)
             {
 
                 SceneManager.LoadScene("GameWon");

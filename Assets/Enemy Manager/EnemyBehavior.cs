@@ -8,7 +8,7 @@ public class EnemyBehavior : MonoBehaviour
     public NavMeshAgent enemy;
     public Transform player;
     public LayerMask groundLayer, playerLayer;
-    public float health;
+    public float health = 100;
 
     public Vector3 walkPoint;
     public bool walkPointSet;
@@ -135,6 +135,7 @@ public class EnemyBehavior : MonoBehaviour
 
     public void TakeDamage(int damage)
     {
+        Debug.Log("Take Damage method reached");
         health -= damage;
 
         if (health <= 0)
