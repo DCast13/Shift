@@ -26,7 +26,7 @@ public class PlayerCombat : MonoBehaviour
 
     // ---- NEW animation fields ----
     private Animator rootAnimator;
-    private bool isAttacking = false;
+    public bool isAttacking = false;
     // --------------------------------
 
     void Start()
