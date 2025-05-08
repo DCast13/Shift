@@ -1,4 +1,8 @@
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 // Make sure your enums (WeaponType, AbilityType) are defined elsewhere
 public class PlayerCombat : MonoBehaviour
@@ -171,7 +175,7 @@ public class PlayerCombat : MonoBehaviour
 
         if (playerHealth <= 0)
         {
-            //implement code to transition to game over screen
+            SceneManager.LoadScene("GameOver");
             Debug.Log("Player has died");
         }
     }
