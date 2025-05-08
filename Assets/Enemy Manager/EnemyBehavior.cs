@@ -93,6 +93,7 @@ public class EnemyBehavior : MonoBehaviour
 
         if (!attacked)
         {
+            animator.SetBool("isAttacking", true);
             attacked = true;
             Invoke(nameof(ResetAttack), attackCooldown);
         }
@@ -122,6 +123,7 @@ public class EnemyBehavior : MonoBehaviour
     private void ResetAttack()
     {
         attacked = false;
+        animator.SetBool("isAttacking", false);
     }
 
     private void OnDrawGizmosSelected()
