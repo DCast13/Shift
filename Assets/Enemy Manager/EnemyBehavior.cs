@@ -13,12 +13,17 @@ public class EnemyBehavior : MonoBehaviour
     public Vector3 walkPoint;
     public bool walkPointSet;
     public float walkPointRange;
+    public float patrolTimer;
+    public float patrolCooldown;
 
     public float attackCooldown;
     public bool attacked;
 
     public float sightRange, attackRange;
     public bool inSightRange, inAttackRange;
+
+    public Animator animator;
+    public float movementThreshold = 0.1f;
 
     private void Awake()
     {
@@ -29,7 +34,7 @@ public class EnemyBehavior : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        
+        animator = GetComponent<Animator>();
     }
 
     // Update is called once per frame
@@ -37,6 +42,9 @@ public class EnemyBehavior : MonoBehaviour
     {
         inSightRange = Physics.CheckSphere(transform.position, sightRange, playerLayer);
         inAttackRange = Physics.CheckSphere(transform.position, attackRange, playerLayer);
+
+        bool isMoving = enemy.velocity.magnitude > movementThreshold;
+        animator.SetBool("isRunning", isMoving);
 
         if (!inSightRange && !inAttackRange)
         {
@@ -54,9 +62,12 @@ public class EnemyBehavior : MonoBehaviour
 
     private void Patrolling()
     {
-        if (!walkPointSet)
+        patrolTimer += Time.deltaTime;
+
+        if (!walkPointSet || (patrolTimer >= patrolCooldown))
         {
             SearchWalkPoint();
+            patrolTimer = 0f;
         }
 
         if (walkPointSet)
@@ -64,22 +75,19 @@ public class EnemyBehavior : MonoBehaviour
             enemy.SetDestination(walkPoint);
         }
 
-        Vector3 distanceToWalkPoint = transform.position - walkPoint;
-
-        if (distanceToWalkPoint.magnitude < 1f)
-        {
-            walkPointSet = false;
-        }
+        // Vector3 distanceToWalkPoint = transform.position - walkPoint;
     }
 
     private void Chasing()
     {
         enemy.SetDestination(player.position);
+        patrolTimer = 0f;
     }
 
     private void Attacking()
     {
         enemy.SetDestination(transform.position);
+        patrolTimer = 0f;
 
         // transform.LookAt(player);
 
@@ -95,15 +103,19 @@ public class EnemyBehavior : MonoBehaviour
         float randomX = Random.Range(-walkPointRange, walkPointRange);
         float randomZ = Random.Range(-walkPointRange, walkPointRange);
 
-        Vector3 potentialPoint = new Vector3(transform.position.x + randomX, transform.position.y + 25f, transform.position.z + randomZ);
+        Vector3 potentialPoint = new Vector3(transform.position.x + randomX, transform.position.y + 50f, transform.position.z + randomZ);
 
         RaycastHit hit;
 
-        if (Physics.Raycast(potentialPoint, Vector3.down, out hit, 10f, groundLayer))
+        if (Physics.Raycast(potentialPoint, Vector3.down, out hit, 75f, groundLayer))
         {
             walkPoint = hit.point;
             walkPointSet = true;
             Debug.Log("Walk point found: " + walkPoint);
+        }
+        else
+        {
+            Debug.Log("Could not find new walk point");
         }
     }
 
