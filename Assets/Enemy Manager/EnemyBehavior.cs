@@ -93,7 +93,7 @@ public class EnemyBehavior : MonoBehaviour
 
         if (!attacked)
         {
-            animator.SetBool("isAttacking", true);
+            animator.SetTrigger("attack");
             attacked = true;
             Invoke(nameof(ResetAttack), attackCooldown);
         }
@@ -123,7 +123,6 @@ public class EnemyBehavior : MonoBehaviour
     private void ResetAttack()
     {
         attacked = false;
-        animator.SetBool("isAttacking", false);
     }
 
     private void OnDrawGizmosSelected()
@@ -134,7 +133,7 @@ public class EnemyBehavior : MonoBehaviour
         Gizmos.DrawWireSphere(transform.position, sightRange);
     }
 
-    private void TakeDamage(int damage)
+    public void TakeDamage(int damage)
     {
         health -= damage;
 
@@ -142,6 +141,11 @@ public class EnemyBehavior : MonoBehaviour
         {
             Invoke(nameof(DestroyEnemy), .5f);
         }
+    }
+
+    public bool IsAttacking()
+    {
+        return animator.GetBool("attack");
     }
 
     private void DestroyEnemy()
